@@ -26,6 +26,10 @@
             color: green;
             margin-top: 20px;
         }
+        .disabled {
+            pointer-events: none;
+            background-color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -39,12 +43,12 @@
     </div>
 
     <div class="options">
-        <div onclick="checkMatch('emoji1', 'Don’t click suspicious links', 2)">Don’t click suspicious links</div>
-        <div onclick="checkMatch('emoji1', 'Use a strong password', 0)">Use a strong password</div>
-        <div onclick="checkMatch('emoji2', 'Don’t click suspicious links', 0)">Don’t click suspicious links</div>
-        <div onclick="checkMatch('emoji2', 'Use a strong password', 7)">Use a strong password</div>
-        <div onclick="checkMatch('emoji3', 'Enable Two-Factor Authentication', 4)">Enable Two-Factor Authentication</div>
-        <div onclick="checkMatch('emoji3', 'Use public Wi-Fi', 0)">Use public Wi-Fi</div>
+        <div id="option1" onclick="checkMatch('emoji1', 'Don’t click suspicious links', 2)">Don’t click suspicious links</div>
+        <div id="option2" onclick="checkMatch('emoji1', 'Use a strong password', 0)">Use a strong password</div>
+        <div id="option3" onclick="checkMatch('emoji2', 'Don’t click suspicious links', 0)">Don’t click suspicious links</div>
+        <div id="option4" onclick="checkMatch('emoji2', 'Use a strong password', 7)">Use a strong password</div>
+        <div id="option5" onclick="checkMatch('emoji3', 'Enable Two-Factor Authentication', 4)">Enable Two-Factor Authentication</div>
+        <div id="option6" onclick="checkMatch('emoji3', 'Use public Wi-Fi', 0)">Use public Wi-Fi</div>
     </div>
 
     <div id="result"></div>
@@ -53,21 +57,40 @@
     <script>
         let code = '';
         let foundMatches = {};
+        let completedMatches = 0;
 
         function checkMatch(emojiId, answer, number) {
-            if (!foundMatches[emojiId] && (emojiId === 'emoji1' && answer === 'Don’t click suspicious links') ||
+            if (!foundMatches[emojiId] && 
+                (emojiId === 'emoji1' && answer === 'Don’t click suspicious links') ||
                 (emojiId === 'emoji2' && answer === 'Use a strong password') ||
                 (emojiId === 'emoji3' && answer === 'Enable Two-Factor Authentication')) {
                 
                 code += number;
                 foundMatches[emojiId] = true;
+                completedMatches++;
+
+                // Disable further clicking on that emoji's options
+                document.getElementById(`option1`).classList.add('disabled');
+                document.getElementById(`option2`).classList.add('disabled');
+                document.getElementById(`option3`).classList.add('disabled');
+                document.getElementById(`option4`).classList.add('disabled');
+                document.getElementById(`option5`).classList.add('disabled');
+                document.getElementById(`option6`).classList.add('disabled');
 
                 document.getElementById('result').innerHTML = `Code so far: ${code}`;
-                if (code.length === 4) {
-                    document.getElementById('result').innerHTML = `Success! The code is: ${code}`;
+                
+                // If all matches are completed, reveal final code
+                if (completedMatches === 3) {
+                    document.getElementById('result').innerHTML = `Success! The final code is: ${code}`;
                 }
+            } else {
+                // Disable incorrect choices for that emoji after one click
+                const incorrectOption = document.querySelector(`[onclick="checkMatch('${emojiId}', '${answer}', ${number})"]`);
+                incorrectOption.classList.add('disabled');
+                incorrectOption.style.backgroundColor = "#f99";
             }
         }
     </script>
 </body>
 </html>
+
