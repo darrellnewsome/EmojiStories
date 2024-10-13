@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Safety Matching Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .emoji-story, .options {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .emoji-story div, .options div {
+            margin: 0 10px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+        }
+        #result {
+            font-size: 20px;
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emoji Safety Matching Game</h1>
+    <p>Match the emoji story to the correct online safety tip to find the code!</p>
+
+    <div class="emoji-story">
+        <div id="emoji1">👀🚫🔗</div>
+        <div id="emoji2">🔒💪🔡🔢</div>
+        <div id="emoji3">📱🔐2️⃣</div>
+    </div>
+
+    <div class="options">
+        <div onclick="checkMatch('emoji1', 'Don’t click suspicious links', 2)">Don’t click suspicious links</div>
+        <div onclick="checkMatch('emoji1', 'Use a strong password', 0)">Use a strong password</div>
+        <div onclick="checkMatch('emoji2', 'Don’t click suspicious links', 0)">Don’t click suspicious links</div>
+        <div onclick="checkMatch('emoji2', 'Use a strong password', 7)">Use a strong password</div>
+        <div onclick="checkMatch('emoji3', 'Enable Two-Factor Authentication', 4)">Enable Two-Factor Authentication</div>
+        <div onclick="checkMatch('emoji3', 'Use public Wi-Fi', 0)">Use public Wi-Fi</div>
+    </div>
+
+    <div id="result"></div>
+    <p>Find the correct matches to reveal the code!</p>
+
+    <script>
+        let code = '';
+        let foundMatches = {};
+
+        function checkMatch(emojiId, answer, number) {
+            if (!foundMatches[emojiId] && (emojiId === 'emoji1' && answer === 'Don’t click suspicious links') ||
+                (emojiId === 'emoji2' && answer === 'Use a strong password') ||
+                (emojiId === 'emoji3' && answer === 'Enable Two-Factor Authentication')) {
+                
+                code += number;
+                foundMatches[emojiId] = true;
+
+                document.getElementById('result').innerHTML = `Code so far: ${code}`;
+                if (code.length === 4) {
+                    document.getElementById('result').innerHTML = `Success! The code is: ${code}`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
