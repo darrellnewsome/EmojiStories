@@ -21,11 +21,6 @@
             border: 2px solid #ddd;
             cursor: pointer;
         }
-        #result {
-            font-size: 20px;
-            color: green;
-            margin-top: 20px;
-        }
         .dropzone {
             border: 2px dashed #ccc;
             min-width: 200px;
@@ -34,32 +29,62 @@
         .dragged {
             background-color: #f0f0f0;
         }
+        .disabled {
+            background-color: #ccc;
+            pointer-events: none;
+        }
+        #penalty-clock {
+            font-size: 18px;
+            color: red;
+            margin-top: 10px;
+        }
+        #result {
+            font-size: 20px;
+            color: green;
+            margin-top: 20px;
+        }
+        .code-digit {
+            font-weight: bold;
+            color: black;
+        }
     </style>
 </head>
 <body>
     <h1>Emoji Safety Matching Game</h1>
-    <p>Drag and drop the emoji story to the correct online safety tip to find the code!</p>
+    <p>Drag and drop the emoji story to the correct online safety tip to find the code! Be careful: an incorrect guess will hide the revealed digit and impose a delay before you can try again.</p>
 
     <div class="emoji-story">
         <div id="emoji1" draggable="true" ondragstart="drag(event)">👀🚫🔗</div>
         <div id="emoji2" draggable="true" ondragstart="drag(event)">🔒💪🔡🔢</div>
         <div id="emoji3" draggable="true" ondragstart="drag(event)">📱🔐2️⃣</div>
+        <div id="emoji4" draggable="true" ondragstart="drag(event)">💻🔄📅✅</div>
+        <div id="emoji5" draggable="true" ondragstart="drag(event)">🎣🚫📧💳</div>
     </div>
 
     <div class="options">
         <div id="option1" class="dropzone" ondrop="drop(event, 'emoji1', 'Don’t click suspicious links', 2)" ondragover="allowDrop(event)">Don’t click suspicious links</div>
-        <div id="option2" class="dropzone" ondrop="drop(event, 'emoji2', 'Use a strong password', 7)" ondragover="allowDrop(event)">Use a strong password</div>
-        <div id="option3" class="dropzone" ondrop="drop(event, 'emoji3', 'Enable Two-Factor Authentication', 4)" ondragover="allowDrop(event)">Enable Two-Factor Authentication</div>
+        <div id="option2" class="dropzone" ondrop="drop(event, 'emoji2', 'Use a strong password', 6)" ondragover="allowDrop(event)">Use a strong password</div>
+        <div id="option3" class="dropzone" ondrop="drop(event, 'emoji3', 'Enable Two-Factor Authentication', 3)" ondragover="allowDrop(event)">Enable Two-Factor Authentication</div>
+        <div id="option4" class="dropzone" ondrop="drop(event, 'emoji4', 'Keep software updated', 5)" ondragover="allowDrop(event)">Keep software updated</div>
+        <div id="option5" class="dropzone" ondrop="drop(event, 'emoji5', 'Avoid phishing scams', 9)" ondragover="allowDrop(event)">Avoid phishing scams</div>
+        <!-- Additional 15 incorrect tips -->
+        <div id="option6" class="dropzone">Use public Wi-Fi</div>
+        <div id="option7" class="dropzone">Share passwords with friends</div>
+        <div id="option8" class="dropzone">Never log out of shared devices</div>
+        <div id="option9" class="dropzone">Don’t report harassment</div>
+        <div id="option10" class="dropzone">Post personal information</div>
+        <!-- Add more incorrect options up to 20 -->
     </div>
 
     <div id="result"></div>
-    <p>Find the correct matches to reveal the code!</p>
+    <p id="penalty-clock"></p>
 
     <script>
-        let code = '';
+        let code = ['', '', '', '', '']; // Code: 26359
         let foundMatches = {};
         let completedMatches = 0;
-        let delayTimes = { emoji1: 1000, emoji2: 1000, emoji3: 1000 }; // Initial delay for each emoji
+        let delayTimes = { emoji1: 1000, emoji2: 1000, emoji3: 1000, emoji4: 1000, emoji5: 1000 }; // Initial delay
+        let delayClockInterval;
 
         function allowDrop(event) {
             event.preventDefault();
@@ -74,40 +99,52 @@
             event.preventDefault();
             const draggedEmojiId = event.dataTransfer.getData("text");
 
-            // If the dragged emoji is correct
+            // Correct match logic
             if (draggedEmojiId === emojiId && !foundMatches[emojiId]) {
                 foundMatches[emojiId] = true;
-                code += number;
+                code[parseInt(emojiId.replace('emoji', '')) - 1] = number;
                 document.getElementById(draggedEmojiId).style.visibility = "hidden";
                 completedMatches++;
+                updateResult();
 
-                document.getElementById('result').innerHTML = `Code so far: ${code}`;
-                
-                if (completedMatches === 3) {
-                    document.getElementById('result').innerHTML = `Success! The final code is: ${code}`;
+                if (completedMatches === 5) {
+                    document.getElementById('result').innerHTML = `Success! The final code is: ${code.join('')}`;
                 }
             } else {
                 // Incorrect match handling
                 event.target.style.backgroundColor = "#f99";
                 document.getElementById('result').innerHTML = "Incorrect match, try again.";
-
-                // Disable dragging for a short delay to deter guessing
-                disableDragFor(emojiId);
+                code[parseInt(emojiId.replace('emoji', '')) - 1] = ''; // Hide the digit
+                updateResult();
+                disableDragFor(emojiId); // Add delay
             }
+        }
+
+        function updateResult() {
+            document.getElementById('result').innerHTML = `Code so far: ${code.map(d => d || '_').join(' ')}`;
         }
 
         function disableDragFor(emojiId) {
             const emojiElement = document.getElementById(emojiId);
             emojiElement.setAttribute("draggable", "false");
 
-            setTimeout(() => {
-                emojiElement.setAttribute("draggable", "true");
-                emojiElement.classList.remove('dragged');
-                document.getElementById('result').innerHTML = ""; // Clear result message
-            }, delayTimes[emojiId]);
+            let delay = delayTimes[emojiId] / 1000; // Convert milliseconds to seconds
+            document.getElementById('penalty-clock').innerHTML = `Penalty: ${delay} seconds remaining...`;
 
-            // Increase the delay after every wrong attempt
-            delayTimes[emojiId] += 1000;
+            // Penalty delay clock countdown
+            clearInterval(delayClockInterval);
+            delayClockInterval = setInterval(() => {
+                delay--;
+                if (delay <= 0) {
+                    clearInterval(delayClockInterval);
+                    emojiElement.setAttribute("draggable", "true");
+                    document.getElementById('penalty-clock').innerHTML = '';
+                } else {
+                    document.getElementById('penalty-clock').innerHTML = `Penalty: ${delay} seconds remaining...`;
+                }
+            }, 1000);
+
+            delayTimes[emojiId] += 1000; // Increase delay by 1 second for next incorrect guess
         }
     </script>
 </body>
