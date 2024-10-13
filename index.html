@@ -15,16 +15,25 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-        .emoji-story div, .options div {
+        .emoji-story div {
             margin: 0 10px;
             padding: 10px;
             border: 2px solid #ddd;
             cursor: pointer;
         }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 tips per row */
+            gap: 10px;
+            justify-content: center;
+            max-width: 800px; /* Limit width for proper layout */
+            margin: 0 auto; /* Center grid */
+        }
         .dropzone {
             border: 2px dashed #ccc;
-            min-width: 200px;
             padding: 10px;
+            cursor: pointer;
+            text-align: center;
         }
         .dragged {
             background-color: #f0f0f0;
@@ -73,7 +82,16 @@
         <div id="option8" class="dropzone">Never log out of shared devices</div>
         <div id="option9" class="dropzone">Don’t report harassment</div>
         <div id="option10" class="dropzone">Post personal information</div>
-        <!-- Add more incorrect options up to 20 -->
+        <div id="option11" class="dropzone">Turn off two-factor authentication</div>
+        <div id="option12" class="dropzone">Use the same password for every account</div>
+        <div id="option13" class="dropzone">Ignore software updates</div>
+        <div id="option14" class="dropzone">Click on all links in emails</div>
+        <div id="option15" class="dropzone">Open email attachments from unknown senders</div>
+        <div id="option16" class="dropzone">Disable encryption on your devices</div>
+        <div id="option17" class="dropzone">Share your account credentials</div>
+        <div id="option18" class="dropzone">Use weak passwords</div>
+        <div id="option19" class="dropzone">Store passwords in plain text</div>
+        <div id="option20" class="dropzone">Don't back up your data</div>
     </div>
 
     <div id="result"></div>
