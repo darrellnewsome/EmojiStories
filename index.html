@@ -26,29 +26,30 @@
             color: green;
             margin-top: 20px;
         }
-        .disabled {
-            pointer-events: none;
-            background-color: #ccc;
+        .dropzone {
+            border: 2px dashed #ccc;
+            min-width: 200px;
+            padding: 10px;
+        }
+        .dragged {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
     <h1>Emoji Safety Matching Game</h1>
-    <p>Match the emoji story to the correct online safety tip to find the code!</p>
+    <p>Drag and drop the emoji story to the correct online safety tip to find the code!</p>
 
     <div class="emoji-story">
-        <div id="emoji1">👀🚫🔗</div>
-        <div id="emoji2">🔒💪🔡🔢</div>
-        <div id="emoji3">📱🔐2️⃣</div>
+        <div id="emoji1" draggable="true" ondragstart="drag(event)">👀🚫🔗</div>
+        <div id="emoji2" draggable="true" ondragstart="drag(event)">🔒💪🔡🔢</div>
+        <div id="emoji3" draggable="true" ondragstart="drag(event)">📱🔐2️⃣</div>
     </div>
 
     <div class="options">
-        <div id="option1" onclick="checkMatch('emoji1', 'Don’t click suspicious links', 2)">Don’t click suspicious links</div>
-        <div id="option2" onclick="checkMatch('emoji1', 'Use a strong password', 0)">Use a strong password</div>
-        <div id="option3" onclick="checkMatch('emoji2', 'Don’t click suspicious links', 0)">Don’t click suspicious links</div>
-        <div id="option4" onclick="checkMatch('emoji2', 'Use a strong password', 7)">Use a strong password</div>
-        <div id="option5" onclick="checkMatch('emoji3', 'Enable Two-Factor Authentication', 4)">Enable Two-Factor Authentication</div>
-        <div id="option6" onclick="checkMatch('emoji3', 'Use public Wi-Fi', 0)">Use public Wi-Fi</div>
+        <div id="option1" class="dropzone" ondrop="drop(event, 'emoji1', 'Don’t click suspicious links', 2)" ondragover="allowDrop(event)">Don’t click suspicious links</div>
+        <div id="option2" class="dropzone" ondrop="drop(event, 'emoji2', 'Use a strong password', 7)" ondragover="allowDrop(event)">Use a strong password</div>
+        <div id="option3" class="dropzone" ondrop="drop(event, 'emoji3', 'Enable Two-Factor Authentication', 4)" ondragover="allowDrop(event)">Enable Two-Factor Authentication</div>
     </div>
 
     <div id="result"></div>
@@ -58,39 +59,56 @@
         let code = '';
         let foundMatches = {};
         let completedMatches = 0;
+        let delayTimes = { emoji1: 1000, emoji2: 1000, emoji3: 1000 }; // Initial delay for each emoji
 
-        function checkMatch(emojiId, answer, number) {
-            if (!foundMatches[emojiId] && 
-                (emojiId === 'emoji1' && answer === 'Don’t click suspicious links') ||
-                (emojiId === 'emoji2' && answer === 'Use a strong password') ||
-                (emojiId === 'emoji3' && answer === 'Enable Two-Factor Authentication')) {
-                
-                code += number;
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+            event.target.classList.add('dragged');
+        }
+
+        function drop(event, emojiId, correctMatch, number) {
+            event.preventDefault();
+            const draggedEmojiId = event.dataTransfer.getData("text");
+
+            // If the dragged emoji is correct
+            if (draggedEmojiId === emojiId && !foundMatches[emojiId]) {
                 foundMatches[emojiId] = true;
+                code += number;
+                document.getElementById(draggedEmojiId).style.visibility = "hidden";
                 completedMatches++;
-
-                // Disable further clicking on that emoji's options
-                document.getElementById(`option1`).classList.add('disabled');
-                document.getElementById(`option2`).classList.add('disabled');
-                document.getElementById(`option3`).classList.add('disabled');
-                document.getElementById(`option4`).classList.add('disabled');
-                document.getElementById(`option5`).classList.add('disabled');
-                document.getElementById(`option6`).classList.add('disabled');
 
                 document.getElementById('result').innerHTML = `Code so far: ${code}`;
                 
-                // If all matches are completed, reveal final code
                 if (completedMatches === 3) {
                     document.getElementById('result').innerHTML = `Success! The final code is: ${code}`;
                 }
             } else {
-                // Disable incorrect choices for that emoji after one click
-                const incorrectOption = document.querySelector(`[onclick="checkMatch('${emojiId}', '${answer}', ${number})"]`);
-                incorrectOption.classList.add('disabled');
-                incorrectOption.style.backgroundColor = "#f99";
+                // Incorrect match handling
+                event.target.style.backgroundColor = "#f99";
+                document.getElementById('result').innerHTML = "Incorrect match, try again.";
+
+                // Disable dragging for a short delay to deter guessing
+                disableDragFor(emojiId);
             }
+        }
+
+        function disableDragFor(emojiId) {
+            const emojiElement = document.getElementById(emojiId);
+            emojiElement.setAttribute("draggable", "false");
+
+            setTimeout(() => {
+                emojiElement.setAttribute("draggable", "true");
+                emojiElement.classList.remove('dragged');
+                document.getElementById('result').innerHTML = ""; // Clear result message
+            }, delayTimes[emojiId]);
+
+            // Increase the delay after every wrong attempt
+            delayTimes[emojiId] += 1000;
         }
     </script>
 </body>
 </html>
-
