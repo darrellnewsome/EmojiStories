@@ -32,7 +32,7 @@
         .dropzone {
             border: 2px dashed #ccc;
             padding: 10px;
-            cursor: pointer;
+            cursor: copy; /* Change cursor to show dropzone for all safety tips */
             text-align: center;
         }
         .correct {
@@ -110,10 +110,8 @@
                 const tipDiv = document.createElement('div');
                 tipDiv.classList.add('dropzone');
                 tipDiv.innerHTML = tip.text;
-                if (tip.emojiId) {
-                    tipDiv.setAttribute('ondrop', `drop(event, '${tip.emojiId}', '${tip.text}', ${tip.codeDigit})`);
-                    tipDiv.setAttribute('ondragover', 'allowDrop(event)');
-                }
+                tipDiv.setAttribute('ondrop', `drop(event, '${tip.emojiId || ''}', '${tip.text}', ${tip.codeDigit || 0})`);
+                tipDiv.setAttribute('ondragover', 'allowDrop(event)');
                 safetyTipsGrid.appendChild(tipDiv);
             });
         }
@@ -148,8 +146,8 @@
                 if (completedMatches === 5) {
                     document.getElementById('result').innerHTML = `Success! The final code is: ${code.join('')}`;
                 }
-            } else {
-                // Incorrect match handling
+            } else if (emojiId !== '' && !foundMatches[emojiId]) {
+                // Incorrect match handling only if it's an emoji that has not been matched yet
                 dropzone.classList.add('incorrect'); // Turn red
                 disableDragFor(emojiId); // Add delay for incorrect match
             }
