@@ -38,17 +38,6 @@
         .correct {
             background-color: #d4edda; /* Green for correct match */
         }
-        .incorrect {
-            background-color: #f99; /* Red for incorrect match */
-        }
-        .reset {
-            background-color: transparent; /* Reset when digit is cleared */
-        }
-        #penalty-clock {
-            font-size: 18px;
-            color: red;
-            margin-top: 10px;
-        }
         #result {
             font-size: 20px;
             color: green;
@@ -58,7 +47,7 @@
 </head>
 <body>
     <h1>Emoji Safety Matching Game</h1>
-    <p>Drag and drop the emoji story to the correct online safety tip to find the code! Be careful: an incorrect guess will hide the revealed digit and impose a delay before you can try again.</p>
+    <p>Drag and drop the emoji story to the correct online safety tip to find the code!</p>
 
     <div class="emoji-story">
         <div id="emoji1" draggable="true" ondragstart="drag(event)">👀🚫🔗</div>
@@ -73,14 +62,11 @@
     </div>
 
     <div id="result"></div>
-    <p id="penalty-clock"></p>
 
     <script>
         let code = ['', '', '', '', '']; // Code: 26359
         let foundMatches = {};
         let completedMatches = 0;
-        let delayTimes = { emoji1: 1000, emoji2: 1000, emoji3: 1000, emoji4: 1000, emoji5: 1000 }; // Initial delay
-        let delayClockInterval;
 
         // Array of valid safety tips with matching correct answers
         const safetyTips = [
@@ -135,10 +121,6 @@
         function drop(event, emojiId, correctMatch, number) {
             event.preventDefault();
             const draggedEmojiId = event.dataTransfer.getData("text");
-            const dropzone = event.target;
-
-            // Reset dropzone background color to ensure it accepts the next match
-            dropzone.classList.remove('incorrect');
 
             // Correct match logic
             if (draggedEmojiId === emojiId && !foundMatches[emojiId]) {
@@ -151,43 +133,11 @@
                 if (completedMatches === 5) {
                     document.getElementById('result').innerHTML = `Success! The final code is: ${code.join('')}`;
                 }
-            } else {
-                // Incorrect match handling
-                dropzone.classList.add('incorrect'); // Turn red
-                document.getElementById('result').innerHTML = "Incorrect match, try again.";
-                code[parseInt(emojiId.replace('emoji', '')) - 1] = ''; // Hide the digit
-                document.getElementById(draggedEmojiId).classList.remove('correct'); // Remove green
-                document.getElementById(draggedEmojiId).classList.add('reset'); // Reset background
-                updateResult();
-                disableDragFor(emojiId); // Add delay
             }
         }
 
         function updateResult() {
             document.getElementById('result').innerHTML = `Code so far: ${code.map(d => d || '_').join(' ')}`;
-        }
-
-        function disableDragFor(emojiId) {
-            const emojiElement = document.getElementById(emojiId);
-            emojiElement.setAttribute("draggable", "false");
-
-            let delay = delayTimes[emojiId] / 1000; // Convert milliseconds to seconds
-            document.getElementById('penalty-clock').innerHTML = `Penalty: ${delay} seconds remaining...`;
-
-            // Penalty delay clock countdown
-            clearInterval(delayClockInterval);
-            delayClockInterval = setInterval(() => {
-                delay--;
-                if (delay <= 0) {
-                    clearInterval(delayClockInterval);
-                    emojiElement.setAttribute("draggable", "true");
-                    document.getElementById('penalty-clock').innerHTML = '';
-                } else {
-                    document.getElementById('penalty-clock').innerHTML = `Penalty: ${delay} seconds remaining...`;
-                }
-            }, 1000);
-
-            delayTimes[emojiId] += 1000; // Increase delay by 1 second for next incorrect guess
         }
     </script>
 </body>
