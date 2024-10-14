@@ -70,28 +70,8 @@
         <div id="emoji5" draggable="true" ondragstart="drag(event)">🎣🚫📧💳</div>
     </div>
 
-    <div class="options">
-        <div id="option1" class="dropzone" ondrop="drop(event, 'emoji1', 'Don’t click suspicious links', 2)" ondragover="allowDrop(event)">Don’t click suspicious links</div>
-        <div id="option2" class="dropzone" ondrop="drop(event, 'emoji2', 'Use a strong password', 6)" ondragover="allowDrop(event)">Use a strong password</div>
-        <div id="option3" class="dropzone" ondrop="drop(event, 'emoji3', 'Enable Two-Factor Authentication', 3)" ondragover="allowDrop(event)">Enable Two-Factor Authentication</div>
-        <div id="option4" class="dropzone" ondrop="drop(event, 'emoji4', 'Keep software updated', 5)" ondragover="allowDrop(event)">Keep software updated</div>
-        <div id="option5" class="dropzone" ondrop="drop(event, 'emoji5', 'Avoid phishing scams', 9)" ondragover="allowDrop(event)">Avoid phishing scams</div>
-        <!-- Additional 15 incorrect tips -->
-        <div id="option6" class="dropzone">Use public Wi-Fi</div>
-        <div id="option7" class="dropzone">Share passwords with friends</div>
-        <div id="option8" class="dropzone">Never log out of shared devices</div>
-        <div id="option9" class="dropzone">Don’t report harassment</div>
-        <div id="option10" class="dropzone">Post personal information</div>
-        <div id="option11" class="dropzone">Turn off two-factor authentication</div>
-        <div id="option12" class="dropzone">Use the same password for every account</div>
-        <div id="option13" class="dropzone">Ignore software updates</div>
-        <div id="option14" class="dropzone">Click on all links in emails</div>
-        <div id="option15" class="dropzone">Open email attachments from unknown senders</div>
-        <div id="option16" class="dropzone">Disable encryption on your devices</div>
-        <div id="option17" class="dropzone">Share your account credentials</div>
-        <div id="option18" class="dropzone">Use weak passwords</div>
-        <div id="option19" class="dropzone">Store passwords in plain text</div>
-        <div id="option20" class="dropzone">Don't back up your data</div>
+    <div class="options" id="safetyTipsGrid">
+        <!-- Safety tips will be randomly distributed here -->
     </div>
 
     <div id="result"></div>
@@ -103,6 +83,47 @@
         let completedMatches = 0;
         let delayTimes = { emoji1: 1000, emoji2: 1000, emoji3: 1000, emoji4: 1000, emoji5: 1000 }; // Initial delay
         let delayClockInterval;
+
+        // Array of valid safety tips with matching correct answers
+        const safetyTips = [
+            { text: "Don’t click suspicious links", emojiId: "emoji1", codeDigit: 2 },
+            { text: "Use a strong password", emojiId: "emoji2", codeDigit: 6 },
+            { text: "Enable Two-Factor Authentication", emojiId: "emoji3", codeDigit: 3 },
+            { text: "Keep software updated", emojiId: "emoji4", codeDigit: 5 },
+            { text: "Avoid phishing scams", emojiId: "emoji5", codeDigit: 9 },
+            { text: "Log out from shared devices", emojiId: null },
+            { text: "Store your passwords in a password manager", emojiId: null },
+            { text: "Report online harassment", emojiId: null },
+            { text: "Use secure networks", emojiId: null },
+            { text: "Be cautious when sharing personal information", emojiId: null }
+        ];
+
+        // Shuffle the safety tips array
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Function to initialize the safety tips grid with shuffled safety tips
+        function initializeSafetyTips() {
+            const safetyTipsGrid = document.getElementById('safetyTipsGrid');
+            shuffle(safetyTips); // Randomize the order of safety tips
+
+            safetyTips.forEach(tip => {
+                const tipDiv = document.createElement('div');
+                tipDiv.classList.add('dropzone');
+                tipDiv.innerHTML = tip.text;
+                if (tip.emojiId) {
+                    tipDiv.setAttribute('ondrop', `drop(event, '${tip.emojiId}', '${tip.text}', ${tip.codeDigit})`);
+                    tipDiv.setAttribute('ondragover', 'allowDrop(event)');
+                }
+                safetyTipsGrid.appendChild(tipDiv);
+            });
+        }
+
+        initializeSafetyTips();
 
         function allowDrop(event) {
             event.preventDefault();
