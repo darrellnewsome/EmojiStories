@@ -38,6 +38,12 @@
         .correct {
             background-color: #d4edda; /* Green for correct match */
         }
+        .incorrect {
+            background-color: #f99; /* Red for incorrect match */
+        }
+        .reset {
+            background-color: transparent; /* Reset when ready for new attempt */
+        }
         #result {
             font-size: 20px;
             color: green;
@@ -121,6 +127,10 @@
         function drop(event, emojiId, correctMatch, number) {
             event.preventDefault();
             const draggedEmojiId = event.dataTransfer.getData("text");
+            const dropzone = event.target;
+
+            // Reset dropzone background color to ensure it accepts the next match
+            dropzone.classList.remove('incorrect');
 
             // Correct match logic
             if (draggedEmojiId === emojiId && !foundMatches[emojiId]) {
@@ -133,6 +143,9 @@
                 if (completedMatches === 5) {
                     document.getElementById('result').innerHTML = `Success! The final code is: ${code.join('')}`;
                 }
+            } else {
+                // Incorrect match handling
+                dropzone.classList.add('incorrect'); // Turn red
             }
         }
 
