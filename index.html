@@ -35,12 +35,14 @@
             cursor: pointer;
             text-align: center;
         }
-        .dragged {
-            background-color: #f0f0f0;
+        .correct {
+            background-color: #d4edda; /* Green for correct match */
         }
-        .disabled {
-            background-color: #ccc;
-            pointer-events: none;
+        .incorrect {
+            background-color: #f99; /* Red for incorrect match */
+        }
+        .reset {
+            background-color: transparent; /* Reset when digit is cleared */
         }
         #penalty-clock {
             font-size: 18px;
@@ -51,10 +53,6 @@
             font-size: 20px;
             color: green;
             margin-top: 20px;
-        }
-        .code-digit {
-            font-weight: bold;
-            color: black;
         }
     </style>
 </head>
@@ -142,7 +140,7 @@
             if (draggedEmojiId === emojiId && !foundMatches[emojiId]) {
                 foundMatches[emojiId] = true;
                 code[parseInt(emojiId.replace('emoji', '')) - 1] = number;
-                document.getElementById(draggedEmojiId).style.visibility = "hidden";
+                document.getElementById(draggedEmojiId).classList.add('correct'); // Turn green
                 completedMatches++;
                 updateResult();
 
@@ -151,9 +149,11 @@
                 }
             } else {
                 // Incorrect match handling
-                event.target.style.backgroundColor = "#f99";
+                event.target.classList.add('incorrect'); // Turn red
                 document.getElementById('result').innerHTML = "Incorrect match, try again.";
                 code[parseInt(emojiId.replace('emoji', '')) - 1] = ''; // Hide the digit
+                document.getElementById(draggedEmojiId).classList.remove('correct'); // Remove green
+                document.getElementById(draggedEmojiId).classList.add('reset'); // Reset background
                 updateResult();
                 disableDragFor(emojiId); // Add delay
             }
